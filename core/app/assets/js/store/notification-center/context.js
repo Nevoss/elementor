@@ -26,7 +26,7 @@ function useNotificationCenterState() {
 	const context = React.useContext( NotificationCenterStateContext );
 
 	if ( context === undefined ) {
-		throw new Error();
+		throw new Error( '!!' );
 	}
 
 	return context;
@@ -36,7 +36,7 @@ function useNotificationCenterDispatch() {
 	const context = React.useContext( NotificationCenterDispatchContext );
 
 	if ( context === undefined ) {
-		throw new Error();
+		throw new Error( '!!' );
 	}
 
 	return context;

@@ -1,9 +1,3 @@
-import { NotificationCenterProvider, useNotificationCenterState, useNotificationCenterDispatch } from './context';
-import { notificationCenterActionTypes } from './reducer';
-
-export default {
-	NotificationCenterProvider,
-	useNotificationCenterState,
-	useNotificationCenterDispatch,
-	notificationCenterActionTypes,
-};
+export { NotificationCenterProvider, useNotificationCenterState, useNotificationCenterDispatch } from './context';
+export { notificationCenterActionTypes } from './reducer';
+export { notifyErrorDialog, dismiss } from './action-creators';
