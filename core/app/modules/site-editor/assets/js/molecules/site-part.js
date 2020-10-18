@@ -1,23 +1,23 @@
-import Card from 'elementor-app/ui/card/card';
-import CardHeader from 'elementor-app/ui/card/card-header';
-import CardBody from 'elementor-app/ui/card/card-body';
-import CardImage from 'elementor-app/ui/card/card-image';
-import Heading from 'elementor-app/ui/atoms/heading';
+import { Card, Heading } from '@elementor/ui';
+// import CardHeader from 'elementor-app/ui/card/card-header';
+// import CardBody from 'elementor-app/ui/card/card-body';
+// import CardImage from 'elementor-app/ui/card/card-image';
+// import Heading from 'elementor-app/ui/atoms/heading';
 
 import './site-part.scss';
 
 export default function SitePart( props ) {
 	return (
 		<Card className="e-site-part">
-			<CardHeader>
+			<Card.Header>
 				<Heading tag="h1" variant="text-sm" className="eps-card__headline">{ props.title }</Heading>
 				{ props.actionButton }
-			</CardHeader>
-			<CardBody>
-				<CardImage alt={ props.title } src={ props.thumbnail }>
+			</Card.Header>
+			<Card.Body>
+				<Card.Image alt={ props.title } src={ props.thumbnail }>
 					{ props.children }
-				</CardImage>
-			</CardBody>
+				</Card.Image>
+			</Card.Body>
 		</Card>
 	);
 }
