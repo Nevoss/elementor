@@ -110,6 +110,47 @@
 
 		init: function() {
 			this.cacheElements();
+
+			const unsubscribeMain = wp.data.subscribe( () => {
+				const currentPost = wp.data.select( 'core/editor' ).getCurrentPost();
+
+				if ( ! currentPost || ! Object.keys( currentPost ).length ) {
+					return;
+				}
+
+				const autosaves = wp.data.select( 'core' ).getAutosaves(
+					currentPost.type,
+					currentPost.id
+				);
+
+				if ( ! autosaves ) {
+					return;
+				}
+
+				unsubscribeMain();
+
+				wp.data.dispatch( 'core/editor' ).editPost( {
+					gutenberg_elementor_auto_save: {
+						timestamp: Date.now(),
+						ids: autosaves.map( ( autosave ) => autosave.id ),
+					},
+				} );
+			} );
+
+			wp.data.subscribe( () => {
+				const isSaving = wp.data.select( 'core/editor' ).isSavingPost();
+
+				if ( ! isSaving ) {
+					return;
+				}
+
+				wp.data.dispatch( 'core/editor' ).editPost( {
+					gutenberg_elementor_auto_save: {
+						timestamp: Date.now(),
+						ids: wp.data.select( 'core/editor' ).getEditedPostAttribute( 'gutenberg_elementor_auto_save' )?.ids || [],
+					},
+				} );
+			} );
 		},
 	};
 

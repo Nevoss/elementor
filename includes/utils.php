@@ -353,7 +353,7 @@ class Utils {
 
 		$post = get_post( $post_id );
 
-		$where = $wpdb->prepare( 'post_parent = %d AND post_name LIKE %s AND post_modified_gmt > %s', [ $post_id, "{$post_id}-autosave%", $post->post_modified_gmt ] );
+		$where = $wpdb->prepare( 'post_parent = %d AND post_name LIKE %s AND post_modified_gmt >= %s', [ $post_id, "{$post_id}-autosave%", $post->post_modified_gmt ] );
 
 		if ( $user_id ) {
 			$where .= $wpdb->prepare( ' AND post_author = %d', $user_id );

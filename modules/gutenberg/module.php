@@ -49,6 +49,43 @@ class Module extends BaseModule {
 				},
 			]
 		);
+
+		register_rest_field(
+			get_post_types( '', 'names' ),
+			'gutenberg_elementor_auto_save',
+			[
+				'get_callback' => function () {
+					return [];
+				},
+				'update_callback' => function ( $autosaves_ids, $post ) {
+					$parent = Plugin::$instance->documents->get( $post->ID );
+
+					if ( ! $parent ) {
+						return;
+					}
+
+					foreach ( $autosaves_ids as $autosave_id ) {
+						$autosave = Plugin::$instance->documents->get( $autosave_id );
+
+						if (
+							! $autosave ||
+							! $autosave->is_editable_by_current_user() ||
+							! $autosave->is_built_with_elementor() ||
+							$autosave->get_post()->post_parent !== $parent->get_id()
+						) {
+							return;
+						}
+
+						$parent_post = $parent->get_post();
+
+						wp_update_post( [
+							'ID' => $autosave->get_id(),
+							'post_title' => $parent_post->post_title,
+						] );
+					}
+				},
+			]
+		);
 	}
 
 	/**
