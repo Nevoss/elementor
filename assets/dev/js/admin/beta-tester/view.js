@@ -10,6 +10,8 @@ export default class BetaTesterView extends Marionette.ItemView {
 			betaForm: '#elementor-beta-tester-form',
 			betaEmail: '#elementor-beta-tester-form__email',
 			betaButton: '#elementor-beta-tester-form__submit',
+			betaInputWrapper: '#elementor-beta-tester-form__input-wrapper',
+			betaFormMessage: '#elementor-beta-tester-form__form-message',
 		};
 	}
 
@@ -30,9 +32,18 @@ export default class BetaTesterView extends Marionette.ItemView {
 			data: {
 				betaTesterEmail: email,
 			},
-			// Do not wait for response.
+			success: () => {
+				this.ui.betaInputWrapper.addClass( 'hidden' );
+				this.ui.betaFormMessage.removeClass( 'hidden' );
+
+				setTimeout( () => {
+					elementorBetaTester.layout.hideModal();
+				}, 2000 );
+			},
+			finally: () => {
+				elementorBetaTester.layout.hideModal();
+			},
 		} );
-		elementorBetaTester.layout.hideModal();
 	}
 
 	onRender() {}
