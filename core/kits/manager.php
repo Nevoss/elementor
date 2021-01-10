@@ -83,7 +83,7 @@ class Manager {
 	private function create_default() {
 		$kit = Plugin::$instance->documents->create( 'kit', [
 			'post_type' => Source_Local::CPT,
-			'post_title' => __( 'Default Kit', 'elementor' ),
+			'post_title' => __( 'Default Site Settings', 'elementor' ),
 			'post_status' => 'publish',
 		] );
 
