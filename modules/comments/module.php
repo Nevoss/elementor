@@ -161,7 +161,7 @@ class Module extends BaseApp {
 
 					wp_mail(
 						$user->user_email, // user email
-						"{$user->nickname} mentioned you in an Elementor website.", // title
+						"{$object->comment_author} mentioned you in an Elementor website.", // title
 						'To view the comment and the page visit the following address ' . get_comment_link( $object->comment_ID )
 					);
 				}
