@@ -119,3 +119,9 @@ button.comment-modal-cancel:hover {
 	border-radius: 4px;
 	padding: 0px 5px 2px;
 }
+
+.mca-button {
+	border: none;
+	padding: 0;
+	color: inherit;
+}

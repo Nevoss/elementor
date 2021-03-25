@@ -52,7 +52,7 @@ class Module extends BaseApp {
 			'author_thumbnail' => get_avatar_url($comment->comment_author_email ),
 			'date'        => mysql_to_rfc3339( $comment->comment_date ),
 			'content'     => [
-				'raw' => $comment->comment_content,
+					'raw' => wp_strip_all_tags( $comment->comment_content ),
 			],
 			'link'        => get_comment_link( $comment ),
 			'element_id'  => get_comment_meta( $comment->comment_ID, '_elementor_element_id', true ),
@@ -125,6 +125,16 @@ class Module extends BaseApp {
 					},
 				]
 			);
+
+			register_rest_field(
+				'comment',
+				'stripped_content',
+				[
+					'get_callback' => function ( $object ) {
+						return wp_strip_all_tags( $object->comment_content );
+					},
+				]
+			);
 		}
 
 
@@ -132,6 +142,7 @@ class Module extends BaseApp {
 				if ( ! get_comment_meta( $object->comment_ID, '_elementor_element_id', true ) ) {
 					return;
 				}
+
 				$content = $object->comment_content;
 				$matches = [];
 				preg_match_all( '/\@[^\s]+/', $content, $matches );

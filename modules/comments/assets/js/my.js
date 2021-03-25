@@ -77,7 +77,6 @@ function Comment( props ) {
 									</div>
 								</div>
 								<div className="comment-header-right">
-									<i className="eicon-check"/>
 									<i className="eicon-ellipsis-v"/>
 								</div>
 							</div>
