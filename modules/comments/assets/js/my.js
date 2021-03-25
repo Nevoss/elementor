@@ -5,6 +5,7 @@ let isActive = false;
 function Comment( props ) {
 	const [ input, setInput ] = useState( '' );
 	const [ children, setChildren ] = useState( [] );
+	const [ closed, setClosed ] = useState( false );
 	const myRef = useRef();
 
 	useEffect( () => {
@@ -35,29 +36,48 @@ function Comment( props ) {
 
 	const date = new Date( props.date );
 
+	const close = ( e ) => {
+		e.preventDefault();
+
+		setClosed( true );
+	};
+
+	if ( closed ) {
+		return '';
+	}
+
 	return (
 		<div className="comment-modal" id={`comment-modal-${ props.id }`}>
 			<div className="comment-modal-modal">
 				<div className="comment-wrapper">
-					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<img src={props.author_avatar_urls[ 48 ]} style={{ height: '30px', 	borderRadius: '300px' }}/>
-						<span style={{ marginLeft: '10px' }}> {props.author_name} </span>
+					<div className="comment-header">
+						<div className="comment-header-left" style={{ display: 'flex', alignItems: 'center' }}>
+							<img src={props.author_avatar_urls[ 48 ]} style={{ height: '30px', 	borderRadius: '300px' }}/>
+							<div className="comment-header-name-date">
+								<span className="comment-author">{props.author_name}</span>
+								<div className="comment-date">{ date.toLocaleString() }</div>
+							</div>
+						</div>
+						<div className="comment-header-right">
+							<i className="eicon-check"/>
+							<i className="eicon-ellipsis-v"/>
+						</div>
 					</div>
+					<div dangerouslySetInnerHTML={{ __html: props.content.rendered }} />
 				</div>
-				<div>
-					{ date.toLocaleString() }
-				</div>
-				<div dangerouslySetInnerHTML={{ __html: props.content.rendered }} />
-
 				{ children.map( ( item ) => {
 					return (
-						<div key={item.id}>
-							<div className="comment-wrapper">
-								<div style={{ display: 'flex', alignItems: 'center' }}>
+						<div key={item.id} className="comment-wrapper">
+							<div className="comment-header">
+								<div className="comment-header-left" style={{ display: 'flex', alignItems: 'center' }}>
 									<img src={item.author_avatar_urls[ 48 ]} style={{ height: '30px', 	borderRadius: '300px' }}/>
-									<span style={{ marginLeft: '10px' }}> {item.author_name} </span>
+									<div className="comment-header-name-date">
+										<span className="comment-author">{item.author_name}</span>
+										<div className="comment-date">{ date.toLocaleString() }</div>
+									</div>
 								</div>
-								<div>
+								<div className="comment-header-right">
+									<i className="eicon-check"/>
 									<i className="eicon-ellipsis-v"/>
 								</div>
 							</div>
@@ -65,11 +85,12 @@ function Comment( props ) {
 						</div>
 					);
 				} ) }
-
-				<input style={{ width: '100%' }} value={input} onChange={( e ) => setInput( e.target.value )} ref={myRef} placeholder="Add a comment. Use @ to mention"/>
-				<div id="comment-box-right">
-					<button className="comment-modal-cancel">Cancel</button>
-					<button className="comment-modal-submit" onClick={( e ) => submit( e )}>Comment</button>
+				<div className="comment-inputs-container">
+					<input className="comment-text-input" placeholder="Write a comment..." value={input} onChange={( e ) => setInput( e.target.value )} ref={myRef} placeholder="Add a comment. Use @ to mention"/>
+					<div id="comment-box-right">
+						<button className="comment-modal-cancel" onClick={( e ) => close( e )}>Cancel</button>
+						<button className="comment-modal-submit" onClick={( e ) => submit( e )}>Comment</button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -133,40 +154,6 @@ function NewComment( props ) {
 		</div> ) : <Comment { ...data } comments={[]} />
 	);
 }
-
-// function App() {
-// 	const [ comments, setComments ] = useState( [] );
-//
-// 	useEffect( () => {
-//
-// 	} );
-//
-// 	useEffect( () => {
-// 		const listener = ( el ) => {
-// 			if ( ! isActive ) {
-// 				return;
-// 			}
-//
-// 			const element = el.srcElement.closest( '.elementor-section, .elementor-column, .elementor-widget' );
-//
-// 			const icon = document.createElement( 'div' );
-// 			icon.classList.add( 'comment-icon' );
-//
-// 			element.appendChild( icon );
-// 		};
-//
-// 		document.addEventListener( 'click', listener );
-//
-// 		return () => {
-// 			document.removeEventListener( 'click', listener );
-// 		};
-// 	} );
-//
-// 	return <div/>;
-// 	// return ( comments.map( ( comment ) => (
-// 	// 	<Comment key={comment.id} {...comment} />
-// 	// ) ) );
-// }
 
 jQuery( () => {
 	const element = document.createElement( 'div' ),
@@ -259,9 +246,5 @@ jQuery( () => {
 		bodyElement.classList.remove( 'e-comments-pin-cursor' );
 
 		isActive = false;
-		// ReactDOM.render(
-		// 	<Comment { ...comment } comments={data} />,
-		// 	modal
-		// );
 	} );
 } );

@@ -149,7 +149,10 @@
 		&-excerpt,
 		&-num-replies {
 			display: block;
-			margin-bottom: 4px;
+
+			&:first-child {
+				margin-bottom: 4px;
+			}
 		}
 	}
 }
@@ -164,3 +167,4 @@
 		cursor: pointer;
 	}
 }
+
