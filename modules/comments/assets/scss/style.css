@@ -125,3 +125,7 @@ button.comment-modal-cancel:hover {
 	padding: 0;
 	color: inherit;
 }
+
+.comment-inputs-container {
+	margin-top: 10px;
+}
