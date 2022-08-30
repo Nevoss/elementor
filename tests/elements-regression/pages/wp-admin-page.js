@@ -9,20 +9,17 @@ const EditorPage = require( './editor-page.js' );
 const CLEAN_POST_ID = 1;
 
 module.exports = class WpAdminPage extends BasePage {
-	async useElementorCleanPost() {
-		await this.page.goto( `/wp-admin/post.php?post=${ CLEAN_POST_ID }&action=elementor` );
+	/**
+	 * @return {Promise<number>}
+	 */
+	async createElementorPage() {
+		await this.page.goto( '/wp-admin' );
 
-		await this.waitForPanel();
+		const button = await this.page.locator( 'text="Create New Page"' );
+		await button.click();
 
-		const editor = new EditorPage( this.page, this.testInfo, CLEAN_POST_ID );
+		await this.page.waitForSelector( '#elementor-panel-header-title' );
 
-		await this.page.evaluate( () => $e.run( 'document/elements/empty', { force: true } ) );
-
-		return editor;
-	}
-
-	async waitForPanel() {
-		await this.page.waitForSelector( '.elementor-panel-loading', { state: 'detached' } );
-		await this.page.waitForSelector( '#elementor-loading', { state: 'hidden' } );
+		return await this.page.evaluate( () => window.ElementorConfig.document.id );
 	}
 };

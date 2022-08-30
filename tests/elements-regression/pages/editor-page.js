@@ -27,4 +27,22 @@ module.exports = class EditorPage extends BasePage {
 	getPreviewFrame() {
 		return this.page.frame( { name: 'elementor-preview-iframe' } );
 	}
+
+	async ensureNavigatorClosed() {
+		const navigatorCloseButton = await this.page.$( '#elementor-navigator__close' );
+
+		if ( navigatorCloseButton ) {
+			await navigatorCloseButton.click();
+		}
+	}
+
+	/**
+	 * @return {Promise<void>}
+	 */
+	async ensureLoaded() {
+		await Promise.all( [
+			this.page.waitForSelector( '.elementor-panel-loading', { state: 'detached' } ),
+			this.page.waitForSelector( '#elementor-loading', { state: 'hidden' } ),
+		] );
+	}
 };
