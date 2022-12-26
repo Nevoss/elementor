@@ -4,12 +4,13 @@ import { addFill, resetFills } from '../locations';
 import Slot from '../components/slot';
 import { expect } from '@playwright/test';
 
-describe( '@elementor/locations locations', () => {
+describe( '@elementor/locations locations functions', () => {
 	beforeEach( () => {
 		resetFills();
 	} );
 
 	it( 'should render components based on the location name', () => {
+		// Arrange.
 		addFill( {
 			location: 'test',
 			component: () => <div data-testid="element">First div</div>,
@@ -22,11 +23,13 @@ describe( '@elementor/locations locations', () => {
 
 		addFill( {
 			location: 'test2',
-			component: () => <div data-testid="element">Should not exists</div>,
+			component: () => <div data-testid="element">Should not exist</div>,
 		} );
 
+		// Act.
 		const { getAllByTestId } = render( <Slot location="test" /> );
 
+		// Assert.
 		const elements = getAllByTestId( 'element' );
 
 		expect( elements ).toHaveLength( 2 );
@@ -35,9 +38,11 @@ describe( '@elementor/locations locations', () => {
 	} );
 
 	it( 'should render components based on priority', () => {
+		// Arrange.
 		addFill( {
 			location: 'test',
 			component: () => <div data-testid="element">Third div</div>,
+			// Default priority is 10.
 		} );
 
 		addFill( {
@@ -52,8 +57,10 @@ describe( '@elementor/locations locations', () => {
 			priority: 5,
 		} );
 
+		// Act.
 		const { getAllByTestId } = render( <Slot location="test" /> );
 
+		// Assert.
 		const elements = getAllByTestId( 'element' );
 
 		expect( elements ).toHaveLength( 3 );
@@ -63,12 +70,15 @@ describe( '@elementor/locations locations', () => {
 	} );
 
 	it( 'should render empty slot when there are no fills', () => {
+		// Arrange & Act.
 		const { container } = render( <Slot location="empty" /> );
 
+		// Assert.
 		expect( container.innerHTML ).toBe( '' );
 	} );
 
 	it( 'should render lazy components', async () => {
+		// Arrange.
 		addFill( {
 			location: 'test',
 			component: () => <div>First div</div>,
@@ -81,8 +91,10 @@ describe( '@elementor/locations locations', () => {
 			} ) ),
 		} );
 
+		// Act.
 		const { queryByText, findByText } = render( <Slot location="test" /> );
 
+		// Assert.
 		expect( queryByText( 'First div' ) ).toBeTruthy();
 		expect( queryByText( 'Second div' ) ).toBeNull();
 

@@ -6,7 +6,7 @@ export const addFill = ( { location, component, priority = 10 }: FillWithOptiona
 	fills.push( { location, component, priority } );
 };
 
-export const getFills = ( location: string ): Fill[] => {
+export const getFills = ( location: Fill['location'] ): Fill[] => {
 	return fills
 		.filter( ( fill ) => fill.location === location )
 		.sort( ( a, b ) => a.priority - b.priority );

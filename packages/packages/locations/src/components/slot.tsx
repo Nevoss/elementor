@@ -7,11 +7,11 @@ type SlotProps = {
 
 // TODO: <ErrorBoundary />
 export default function Slot( { location }: SlotProps ) {
-	const fillers = useFills( location );
+	const fills = useFills( location );
 
 	return (
 		<>
-			{ fillers.map( ( { component: Component }, index ) => (
+			{ fills.map( ( { component: Component }, index ) => (
 				<Suspense fallback={ null } key={ index }>
 					<Component />
 				</Suspense>
