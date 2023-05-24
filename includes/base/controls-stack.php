@@ -171,6 +171,13 @@ abstract class Controls_Stack extends Base_Object {
 	private $render_attributes = [];
 
 	/**
+	 *
+	 * @access protected
+	 * @var array
+	 */
+	protected $default = [];
+
+	/**
 	 * Get element name.
 	 *
 	 * Retrieve the element name.
@@ -333,7 +340,7 @@ abstract class Controls_Stack extends Base_Object {
 			array_keys( $controls ), function( $active_controls, $control_key ) use ( $controls, $settings ) {
 				$control = $controls[ $control_key ];
 
-				if ( $this->is_control_visible( $control, $settings ) ) {
+				if ( $this->is_control_visible( $control, $settings, $controls ) ) {
 					$active_controls[ $control_key ] = $control;
 				}
 
@@ -1159,6 +1166,8 @@ abstract class Controls_Stack extends Base_Object {
 
 		$active_settings = [];
 
+		$default = $this->get_control_objects( $controls );
+
 		foreach ( $settings as $setting_key => $setting ) {
 			if ( ! isset( $controls[ $setting_key ] ) ) {
 				$active_settings[ $setting_key ] = $setting;
@@ -1168,8 +1177,8 @@ abstract class Controls_Stack extends Base_Object {
 
 			$control = $controls[ $setting_key ];
 
-			if ( $this->is_control_visible( $control, $settings ) ) {
-				$control_obj = Plugin::$instance->controls_manager->get_control( $control['type'] );
+			if ( $this->is_control_visible( $control, $settings, $controls ) ) {
+				$control_obj = $default[ $control['type'] ] ?? null;
 
 				if ( $control_obj instanceof Control_Repeater ) {
 					foreach ( $setting as & $item ) {
@@ -1238,9 +1247,11 @@ abstract class Controls_Stack extends Base_Object {
 			$controls = $this->get_controls();
 		}
 
+		$default = $this->get_control_objects( $controls );
+
 		foreach ( $controls as $control ) {
 			$control_name = $control['name'];
-			$control_obj = Plugin::$instance->controls_manager->get_control( $control['type'] );
+			$control_obj = $default[ $control['type'] ] ?? null;
 
 			if ( ! $control_obj instanceof Base_Data_Control ) {
 				continue;
@@ -1377,7 +1388,7 @@ abstract class Controls_Stack extends Base_Object {
 	 *
 	 * @return bool Whether the control is visible.
 	 */
-	public function is_control_visible( $control, $values = null ) {
+	public function is_control_visible( $control, $values = null, $controls = null ) {
 		if ( null === $values ) {
 			$values = $this->get_settings();
 		}
@@ -1390,7 +1401,9 @@ abstract class Controls_Stack extends Base_Object {
 			return true;
 		}
 
-		$controls = $this->get_controls();
+		if ( is_null( $controls ) ) {
+			$controls = $this->get_controls();
+		}
 
 		foreach ( $control['condition'] as $condition_key => $condition_value ) {
 			preg_match( '/([a-z_\-0-9]+)(?:\[([a-z_]+)])?(!?)$/i', $condition_key, $condition_key_parts );
@@ -2162,14 +2175,19 @@ abstract class Controls_Stack extends Base_Object {
 	protected function get_init_settings() {
 		$settings = $this->get_data( 'settings' );
 
-		foreach ( $this->get_controls() as $control ) {
-			$control_obj = Plugin::$instance->controls_manager->get_control( $control['type'] );
+		$controls = $this->get_controls();
+		$default = $this->get_control_objects( $controls );
 
-			if ( ! $control_obj instanceof Base_Data_Control ) {
+		foreach ( $controls as $control ) {
+			if ( ! isset( $default[ $control['type'] ] ) ) {
 				continue;
 			}
 
-			$control = array_merge_recursive( $control_obj->get_settings(), $control );
+			$control_obj = $default[ $control['type'] ];
+
+			if ( ! isset( $control_obj->default ) ) {
+				$control_obj->default = $default[ $control['type'] ]->default ?? null;
+			}
 
 			$settings[ $control['name'] ] = $control_obj->get_value( $control, $settings );
 		}
@@ -2416,8 +2434,10 @@ abstract class Controls_Stack extends Base_Object {
 			$controls = $this->get_controls();
 		}
 
+		$default = $this->get_control_objects( $controls );
+
 		foreach ( $controls as $control ) {
-			$control_obj = Plugin::$instance->controls_manager->get_control( $control['type'] );
+			$control_obj = $default[ $control['type'] ] ?? null;
 
 			if ( $control_obj instanceof Control_Repeater ) {
 				if ( empty( $settings[ $control['name'] ] ) ) {
@@ -2449,6 +2469,10 @@ abstract class Controls_Stack extends Base_Object {
 		}
 
 		return $settings;
+	}
+
+	protected function get_control_objects( array $controls ) {
+		return Control_Objects::instance()->get_control_objects( $controls );
 	}
 
 	/**
