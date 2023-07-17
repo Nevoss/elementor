@@ -78,7 +78,7 @@ const FormLayout = ( { onClose, onResolve } ) => {
 
 					<GenerateSubmit
 						fullWidth={ false }
-						disabled={ isLoading }
+						disabled={ isLoading || '' === prompt }
 						sx={ {
 							minWidth: '100px',
 							borderRadius: '4px',
