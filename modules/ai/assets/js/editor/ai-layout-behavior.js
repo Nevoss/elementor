@@ -27,11 +27,37 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 
 		window.elementorAiCurrentContext = this.getOption( 'context' );
 
+		const previewContainer = elementor.getPreviewContainer();
+
+		const container = $e.run( 'document/elements/create', {
+			container: previewContainer,
+			model: {
+				elType: 'container',
+				settings: {},
+			},
+			options: { edit: false },
+		} );
+
 		ReactDOM.render(
 			<LayoutApp
 				colorScheme={ colorScheme }
 				isRTL={ isRTL }
+				onResolve={ ( result ) => {
+					const at = previewContainer.children.findIndex( ( child ) => child === container );
+
+					$e.run( 'document/elements/delete', { container } );
+
+					$e.run( 'document/elements/create', {
+						container: previewContainer,
+						model: result,
+						options: { edit: false, at },
+					} );
+				} }
 				onClose={ () => {
+					if ( ! container.children.length ) {
+						$e.run( 'document/elements/delete', { container } );
+					}
+
 					ReactDOM.unmountComponentAtNode( rootElement );
 					rootElement.remove();
 				} }
