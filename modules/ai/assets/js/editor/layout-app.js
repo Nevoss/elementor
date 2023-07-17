@@ -5,11 +5,26 @@ import UpgradeChip from './components/upgrade-chip';
 import FormLayout from './pages/form-layout';
 import StyledChip from './components/ui/styled-chip';
 
+const promptDialogStyleProps = {
+	sx: {
+		'& .MuiDialog-container': {
+			alignItems: 'flex-start',
+			mt: '70vh',
+		},
+	},
+	PaperProps: {
+		sx: {
+			m: 0,
+			maxHeight: '30vh',
+		},
+	},
+};
+
 const LayoutApp = ( { isRTL, colorScheme, onClose, onResolve } ) => {
 	return (
 		<DirectionProvider rtl={ isRTL }>
 			<ThemeProvider colorScheme={ colorScheme }>
-				<PromptDialog onClose={ onClose }>
+				<PromptDialog onClose={ onClose } { ...promptDialogStyleProps } maxWidth="md">
 					<DialogTitle sx={ { fontWeight: 'normal' } }>
 						<AIIcon fontSize="small" sx={ { mr: 3 } } />
 
@@ -34,7 +49,7 @@ const LayoutApp = ( { isRTL, colorScheme, onClose, onResolve } ) => {
 					</DialogTitle>
 
 					<PromptDialog.Content dividers>
-						<FormLayout onClose={ onClose } />
+						<FormLayout onClose={ onClose } onResolve={ onResolve } />
 					</PromptDialog.Content>
 				</PromptDialog>
 			</ThemeProvider>

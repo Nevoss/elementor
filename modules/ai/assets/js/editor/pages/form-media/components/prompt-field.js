@@ -4,7 +4,7 @@ import EnhanceButton from './enhance-button';
 import usePromptEnhancer from '../hooks/use-image-prompt-enhancer';
 
 const PromptField = ( { disabled, onChange, ...props } ) => {
-	const { enhance, isEnhancing } = usePromptEnhancer( props.value );
+	const { enhance, isEnhancing } = usePromptEnhancer();
 
 	return (
 		<Textarea
@@ -24,7 +24,7 @@ const PromptField = ( { disabled, onChange, ...props } ) => {
 							isLoading={ isEnhancing }
 							disabled={ disabled || isEnhancing || ! props.value }
 							onClick={ () => {
-								enhance( prompt )
+								enhance( props.value )
 									.then( ( { result } ) => onChange( result ) );
 							} }
 						/>
