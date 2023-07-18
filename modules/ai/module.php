@@ -40,7 +40,7 @@ class Module extends BaseModule {
 			$ajax->register_ajax_action( 'ai_get_image_to_image_remove_background', [ $this, 'ajax_ai_get_image_to_image_remove_background' ] );
 			$ajax->register_ajax_action( 'ai_get_image_to_image_replace_background', [ $this, 'ajax_ai_get_image_to_image_replace_background' ] );
 			$ajax->register_ajax_action( 'ai_upload_image', [ $this, 'ajax_ai_upload_image' ] );
-			$ajax->register_ajax_action( 'ai_get_text_to_layout', [ $this, 'ajax_ai_get_text_to_layout' ] );
+			$ajax->register_ajax_action( 'ai_generate_layout', [ $this, 'ajax_ai_generate_layout' ] );
 		} );
 
 		add_action( 'elementor/editor/before_enqueue_scripts', function() {
@@ -583,7 +583,7 @@ class Module extends BaseModule {
 		];
 	}
 
-	public function ajax_ai_get_text_to_layout( $data ) {
+	public function ajax_ai_generate_layout( $data ) {
 		$this->verify_permissions( $data['editor_post_id'] );
 
 		$app = $this->get_ai_app();
@@ -598,15 +598,16 @@ class Module extends BaseModule {
 
 		$context = $this->get_request_context( $data );
 
-		$result = $app->get_text_to_layout( $data['prompt'], $context );
+		$result = $app->generate_layout( $data['prompt'], $context );
 
 		if ( is_wp_error( $result ) ) {
 			throw new \Exception( $result->get_error_message() );
 		}
 
 		return [
-			'text' => $result['elements'],
+			'text' => $result['text']['elements'],
 			'response_id' => $result['responseId'],
+			'usage' => $result['usage'],
 		];
 	}
 

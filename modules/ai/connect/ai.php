@@ -476,35 +476,17 @@ class Ai extends Library {
 		return $result;
 	}
 
-	public function get_text_to_layout( $prompt, $context = [] ) {
-//		return $this->ai_request(
-//			'POST',
-//			'text/layout',
-//			[
-//				'prompt' => $prompt,
-//				'context' => wp_json_encode( $context ),
-//				'api_version' => ELEMENTOR_VERSION,
-//				'site_lang' => get_bloginfo( 'language' ),
-//			]
-//		);
-
-		return [
-			'responseId' => 'a1',
-			'elements' => [
-				'elType' => 'container',
-				'settings' => [],
-				'elements' => [
-					[
-						'elType' => 'widget',
-						'widgetType' => 'heading',
-						'settings' => [
-							'heading' => 'This is the heading',
-							'heading_size' => 'h1',
-						],
-					],
-				],
-			],
-		];
+	public function generate_layout( $prompt, $context = [] ) {
+		return $this->ai_request(
+			'POST',
+			'generate/layout',
+			[
+				'prompt' => $prompt,
+				'context' => wp_json_encode( $context ),
+				'api_version' => ELEMENTOR_VERSION,
+				'site_lang' => get_bloginfo( 'language' ),
+			]
+		);
 	}
 
 	protected function init() {}

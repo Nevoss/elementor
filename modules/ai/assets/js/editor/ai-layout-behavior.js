@@ -49,8 +49,12 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 					$e.run( 'document/elements/create', {
 						container: previewContainer,
 						model: {
-							...result,
 							id: targetContainer.id,
+							elType: 'container',
+							settings: {
+								content_width: 'full',
+							},
+							elements: result,
 						},
 						options: { edit: true, at },
 					} );
@@ -58,7 +62,7 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 				onClose={ () => {
 					const targetContainer = elementor.getContainer( container.id );
 
-					if ( ! targetContainer.children.length ) {
+					if ( ! targetContainer?.children?.length ) {
 						$e.run( 'document/elements/delete', { container: targetContainer } );
 					}
 
