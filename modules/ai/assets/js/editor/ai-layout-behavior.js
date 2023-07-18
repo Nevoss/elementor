@@ -40,11 +40,20 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 			<LayoutApp
 				colorScheme={ colorScheme }
 				isRTL={ isRTL }
-				onResolve={ ( result ) => {
+				onResolve={ async ( result ) => {
 					const targetContainer = elementor.getContainer( container.id );
 					const at = previewContainer.children.findIndex( ( child ) => child === targetContainer );
 
 					$e.run( 'document/elements/delete', { container: targetContainer } );
+
+					const response = await new Promise( ( resolve, reject ) => elementorCommon.ajax.addRequest(
+						'import_from_json',
+						{
+							data: { elements: JSON.stringify( result.elements ) },
+							success: resolve,
+							error: reject,
+						},
+					) );
 
 					$e.run( 'document/elements/create', {
 						container: previewContainer,
@@ -54,7 +63,7 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 							settings: {
 								content_width: 'full',
 							},
-							elements: result,
+							elements: clearResponse( response ),
 						},
 						options: { edit: true, at },
 					} );
@@ -91,4 +100,34 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 
 		this.ui.wrapper.append( $button );
 	}
+}
+
+function clearResponse( elements ) {
+	return [ ...elements ]
+		.filter( ( element ) => {
+			const elementsTypes = [ 'widget', 'container', 'section', 'column' ];
+			const widgetTypes = Object.keys( elementor.widgetsCache );
+
+			const isValidElement = elementsTypes.includes( element.elType ) && (
+				element.elType !== 'widget' ||
+				widgetTypes.includes( element.widgetType )
+			);
+
+			if ( ! isValidElement ) {
+				console.error( 'Invalid element', element );
+			}
+
+			return isValidElement;
+		} )
+		.map( ( element ) => {
+			element.id = elementorCommon.helpers.getUniqueId();
+
+			delete element.isInner;
+
+			if ( element.elements ) {
+				element.elements = clearResponse( [ ...element.elements ] );
+			}
+
+			return element;
+		} );
 }
