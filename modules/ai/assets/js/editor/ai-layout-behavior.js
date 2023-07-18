@@ -33,7 +33,7 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 				elType: 'container',
 				settings: {},
 			},
-			options: { edit: false },
+			options: { edit: true },
 		} );
 
 		ReactDOM.render(
@@ -41,19 +41,25 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 				colorScheme={ colorScheme }
 				isRTL={ isRTL }
 				onResolve={ ( result ) => {
-					const at = previewContainer.children.findIndex( ( child ) => child === container );
+					const targetContainer = elementor.getContainer( container.id );
+					const at = previewContainer.children.findIndex( ( child ) => child === targetContainer );
 
-					$e.run( 'document/elements/delete', { container } );
+					$e.run( 'document/elements/delete', { container: targetContainer } );
 
 					$e.run( 'document/elements/create', {
 						container: previewContainer,
-						model: result,
-						options: { edit: false, at },
+						model: {
+							...result,
+							id: targetContainer.id,
+						},
+						options: { edit: true, at },
 					} );
 				} }
 				onClose={ () => {
-					if ( ! container.children.length ) {
-						$e.run( 'document/elements/delete', { container } );
+					const targetContainer = elementor.getContainer( container.id );
+
+					if ( ! targetContainer.children.length ) {
+						$e.run( 'document/elements/delete', { container: targetContainer } );
 					}
 
 					ReactDOM.unmountComponentAtNode( rootElement );
