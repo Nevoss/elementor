@@ -45,3 +45,5 @@ export const getImageToImageRemoveText = ( image ) => request( 'ai_get_image_to_
 export const getImagePromptEnhanced = ( prompt ) => request( 'ai_get_image_prompt_enhancer', { prompt } );
 
 export const uploadImage = ( image ) => request( 'ai_upload_image', { ...image } );
+
+export const getTextToLayout = ( prompt ) => request( 'ai_get_text_to_layout', { prompt } );
