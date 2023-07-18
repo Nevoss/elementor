@@ -1,5 +1,3 @@
-
-import App from './app';
 import LayoutApp from 'elementor/modules/ai/assets/js/editor/layout-app';
 
 export default class AiLayoutBehavior extends Marionette.Behavior {
@@ -25,7 +23,7 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 		const rootElement = document.createElement( 'div' );
 		document.body.append( rootElement );
 
-		window.elementorAiCurrentContext = this.getOption( 'context' );
+		window.elementorAiCurrentContext = {};
 
 		const previewContainer = elementor.getPreviewContainer();
 

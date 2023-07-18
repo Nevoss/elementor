@@ -40,6 +40,7 @@ class Module extends BaseModule {
 			$ajax->register_ajax_action( 'ai_get_image_to_image_remove_background', [ $this, 'ajax_ai_get_image_to_image_remove_background' ] );
 			$ajax->register_ajax_action( 'ai_get_image_to_image_replace_background', [ $this, 'ajax_ai_get_image_to_image_replace_background' ] );
 			$ajax->register_ajax_action( 'ai_upload_image', [ $this, 'ajax_ai_upload_image' ] );
+			$ajax->register_ajax_action( 'ai_get_text_to_layout', [ $this, 'ajax_ai_get_text_to_layout' ] );
 		} );
 
 		add_action( 'elementor/editor/before_enqueue_scripts', function() {
@@ -579,6 +580,33 @@ class Module extends BaseModule {
 
 		return [
 			'image' => array_merge( $image_data, $data ),
+		];
+	}
+
+	public function ajax_ai_get_text_to_layout( $data ) {
+		$this->verify_permissions( $data['editor_post_id'] );
+
+		$app = $this->get_ai_app();
+
+		if ( empty( $data['prompt'] ) ) {
+			throw new \Exception( 'Missing prompt' );
+		}
+
+		if ( ! $app->is_connected() ) {
+			throw new \Exception( 'not_connected' );
+		}
+
+		$context = $this->get_request_context( $data );
+
+		$result = $app->get_text_to_layout( $data['prompt'], $context );
+
+		if ( is_wp_error( $result ) ) {
+			throw new \Exception( $result->get_error_message() );
+		}
+
+		return [
+			'text' => $result['elements'],
+			'response_id' => $result['responseId'],
 		];
 	}
 
