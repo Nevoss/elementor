@@ -104,7 +104,7 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 
 function clearResponse( elements ) {
 	return [ ...elements ]
-		.filter( ( element ) => {
+		.map( ( element ) => {
 			const elementsTypes = [ 'widget', 'container', 'section', 'column' ];
 			const widgetTypes = Object.keys( elementor.widgetsCache );
 
@@ -117,7 +117,7 @@ function clearResponse( elements ) {
 				console.error( 'Invalid element', element );
 			}
 
-			return isValidElement;
+			return element;
 		} )
 		.map( ( element ) => {
 			element.id = elementorCommon.helpers.getUniqueId();

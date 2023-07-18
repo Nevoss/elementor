@@ -605,6 +605,7 @@ class Module extends BaseModule {
 		}
 
 		return [
+			'all' => $result,
 			'text' => $result['text'],
 			'response_id' => $result['responseId'],
 			'usage' => $result['usage'],
