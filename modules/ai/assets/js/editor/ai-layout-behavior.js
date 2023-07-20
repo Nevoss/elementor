@@ -1,4 +1,7 @@
 import LayoutApp from 'elementor/modules/ai/assets/js/editor/layout-app';
+import * as htmlToImage from 'html-to-image';
+
+window.htmlToImage = htmlToImage;
 
 export default class AiLayoutBehavior extends Marionette.Behavior {
 	ui() {
@@ -38,8 +41,53 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 
 		ReactDOM.render(
 			<LayoutApp
-				colorScheme={ colorScheme }
 				isRTL={ isRTL }
+				colorScheme={ colorScheme }
+				onGenerated={ async ( result ) => {
+					const targetContainer = elementor.getContainer( container.id );
+					const at = previewContainer.children.findIndex( ( child ) => child === targetContainer );
+
+					$e.run( 'document/elements/delete', { container: targetContainer } );
+
+					const response = await new Promise( ( resolve, reject ) => elementorCommon.ajax.addRequest(
+						'import_from_json',
+						{
+							data: { elements: JSON.stringify( result.elements ) },
+							success: resolve,
+							error: reject,
+						},
+					) );
+
+					const containerData = await $e.run( 'document/elements/create', {
+						container: previewContainer,
+						model: {
+							id: targetContainer.id,
+							elType: 'container',
+							settings: {
+								content_width: 'full',
+							},
+							elements: clearResponse( response ),
+						},
+						options: { edit: true, at },
+					} );
+
+					const containerElement = containerData.view.$el[ 0 ];
+
+					// ContainerElement.setAttribute( 'style', 'display: none;' );
+
+					// TODO: find a solution to wait for the container to be rendered.
+					await new Promise( ( res ) => {
+						setTimeout( () => {
+							res();
+						}, 2000 );
+					} );
+
+					const imageUrl = await htmlToImage.toSvg( containerElement );
+
+					$e.run( 'document/elements/delete', { container: targetContainer } );
+
+					return imageUrl;
+				} }
 				onResolve={ async ( result ) => {
 					const targetContainer = elementor.getContainer( container.id );
 					const at = previewContainer.children.findIndex( ( child ) => child === targetContainer );
@@ -55,7 +103,7 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 						},
 					) );
 
-					$e.run( 'document/elements/create', {
+					await $e.run( 'document/elements/create', {
 						container: previewContainer,
 						model: {
 							id: targetContainer.id,

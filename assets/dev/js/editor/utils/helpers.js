@@ -53,7 +53,7 @@ module.exports = {
 
 	enqueueCSS( url, $document ) {
 		const selector = 'link[href="' + url + '"]',
-			link = '<link href="' + url + '" rel="stylesheet" type="text/css">';
+			link = '<link href="' + url + '" rel="stylesheet" type="text/css" crossorigin="anonymous">';
 
 		if ( ! $document ) {
 			return;

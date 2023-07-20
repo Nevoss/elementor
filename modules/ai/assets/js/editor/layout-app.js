@@ -8,19 +8,20 @@ import StyledChip from './components/ui/styled-chip';
 const promptDialogStyleProps = {
 	sx: {
 		'& .MuiDialog-container': {
-			alignItems: 'flex-start',
-			mt: '70vh',
+			alignItems: 'flex-end',
 		},
 	},
 	PaperProps: {
 		sx: {
 			m: 0,
-			maxHeight: '30vh',
+			mx: 0,
+			mb: '7vh',
+			maxHeight: '35vh',
 		},
 	},
 };
 
-const LayoutApp = ( { isRTL, colorScheme, onClose, onResolve } ) => {
+const LayoutApp = ( { isRTL, colorScheme, onClose, onResolve, onGenerated } ) => {
 	return (
 		<DirectionProvider rtl={ isRTL }>
 			<ThemeProvider colorScheme={ colorScheme }>
@@ -49,7 +50,7 @@ const LayoutApp = ( { isRTL, colorScheme, onClose, onResolve } ) => {
 					</DialogTitle>
 
 					<PromptDialog.Content dividers>
-						<FormLayout onClose={ onClose } onResolve={ onResolve } />
+						<FormLayout onClose={ onClose } onResolve={ onResolve } onGenerated={ onGenerated } />
 					</PromptDialog.Content>
 				</PromptDialog>
 			</ThemeProvider>
@@ -62,6 +63,7 @@ LayoutApp.propTypes = {
 	isRTL: PropTypes.bool,
 	onClose: PropTypes.func,
 	onResolve: PropTypes.func,
+	onGenerated: PropTypes.func,
 };
 
 export default LayoutApp;
