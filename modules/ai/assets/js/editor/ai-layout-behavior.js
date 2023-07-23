@@ -1,7 +1,52 @@
 import LayoutApp from 'elementor/modules/ai/assets/js/editor/layout-app';
 import * as htmlToImage from 'html-to-image';
 
-window.htmlToImage = htmlToImage;
+const createScreenshotContainer = async ( result ) => {
+	const response = await new Promise( ( resolve, reject ) => elementorCommon.ajax.addRequest(
+		'import_from_json',
+		{
+			data: { elements: JSON.stringify( result.elements ) },
+			success: resolve,
+			error: reject,
+		},
+	) );
+
+	const screenshotContainer = await $e.run( 'document/elements/create', {
+		container: elementor.getPreviewContainer(),
+		model: {
+			elType: 'container',
+			settings: {
+				content_width: 'full',
+			},
+			elements: [
+				{
+					elType: 'container',
+					settings: {
+						content_width: 'full',
+					},
+					elements: clearResponse( response ),
+				},
+			],
+		},
+		options: { edit: false },
+	} );
+
+	const containerElement = screenshotContainer.view.$el[ 0 ];
+
+	containerElement.setAttribute( 'style', 'opacity: 0; position: absolute;' );
+
+	return screenshotContainer;
+};
+
+const createScreenshot = async ( container ) => {
+	const element = container.view.$el[ 0 ];
+
+	const imageUrl = await htmlToImage.toSvg( element.querySelector( `.elementor-element` ) );
+
+	$e.run( 'document/elements/delete', { container } );
+
+	return imageUrl;
+};
 
 export default class AiLayoutBehavior extends Marionette.Behavior {
 	ui() {
@@ -44,36 +89,14 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 				isRTL={ isRTL }
 				colorScheme={ colorScheme }
 				onGenerated={ async ( result ) => {
-					const targetContainer = elementor.getContainer( container.id );
-					const at = previewContainer.children.findIndex( ( child ) => child === targetContainer );
+					const options = [ result, result, result ];
 
-					$e.run( 'document/elements/delete', { container: targetContainer } );
+					const containers = [];
 
-					const response = await new Promise( ( resolve, reject ) => elementorCommon.ajax.addRequest(
-						'import_from_json',
-						{
-							data: { elements: JSON.stringify( result.elements ) },
-							success: resolve,
-							error: reject,
-						},
-					) );
-
-					const containerData = await $e.run( 'document/elements/create', {
-						container: previewContainer,
-						model: {
-							id: targetContainer.id,
-							elType: 'container',
-							settings: {
-								content_width: 'full',
-							},
-							elements: clearResponse( response ),
-						},
-						options: { edit: true, at },
-					} );
-
-					const containerElement = containerData.view.$el[ 0 ];
-
-					// ContainerElement.setAttribute( 'style', 'display: none;' );
+					for ( let i = 0; i < options.length; i++ ) {
+						const screenshotContainer = await createScreenshotContainer( result );
+						containers.push( screenshotContainer );
+					}
 
 					// TODO: find a solution to wait for the container to be rendered.
 					await new Promise( ( res ) => {
@@ -82,11 +105,11 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 						}, 2000 );
 					} );
 
-					const imageUrl = await htmlToImage.toSvg( containerElement );
+					const screenshots = await Promise.all( containers.map( ( con ) => createScreenshot( con ) ) );
 
-					$e.run( 'document/elements/delete', { container: targetContainer } );
+					const mergedData = screenshots.map( ( screenshot, index ) => ( { screenshot, template: options[ index ] } ) );
 
-					return imageUrl;
+					return mergedData;
 				} }
 				onResolve={ async ( result ) => {
 					const targetContainer = elementor.getContainer( container.id );
@@ -117,11 +140,11 @@ export default class AiLayoutBehavior extends Marionette.Behavior {
 					} );
 				} }
 				onClose={ () => {
-					const targetContainer = elementor.getContainer( container.id );
+					// Const targetContainer = elementor.getContainer( container.id );
 
-					if ( ! targetContainer?.children?.length ) {
-						$e.run( 'document/elements/delete', { container: targetContainer } );
-					}
+					// if ( ! targetContainer?.children?.length ) {
+					// 	$e.run( 'document/elements/delete', { container: targetContainer } );
+					// }
 
 					ReactDOM.unmountComponentAtNode( rootElement );
 					rootElement.remove();

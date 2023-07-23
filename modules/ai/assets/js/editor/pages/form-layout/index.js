@@ -1,33 +1,29 @@
 import { useState, useRef, useEffect } from 'react';
-import { Box, Stack, CircularProgress, Typography, Backdrop } from '@elementor/ui';
+import { Box, Stack, CircularProgress, Typography } from '@elementor/ui';
 import PromptSearch from '../../components/prompt-search';
 import GenerateSubmit from '../form-media/components/generate-submit';
 import EnhanceButton from '../form-media/components/enhance-button';
 import PromptErrorMessage from '../../components/prompt-error-message';
 import useLayoutPrompt from './hooks/useLayoutPrompt';
 import usePromptEnhancer from '../form-media/hooks/use-image-prompt-enhancer';
-import * as htmlToImage from 'html-to-image';
 
 const FormLayout = ( { onClose, onResolve, onGenerated } ) => {
-	// TODO: replace the function that will call the API to generate the layout inside the useLayoutPrompt hook.
 	const { data, isLoading: isGenerating, error, send, sendUsageData } = useLayoutPrompt();
 
-	const [ suggestedImages, setSuggestedImages ] = useState( [] );
+	const [ generatedData, setGeneratedData ] = useState( [] );
 
 	const [ prompt, setPrompt ] = useState( '' );
 
 	const { isEnhancing, enhance } = usePromptEnhancer();
 
-	const [ showBackdrop, setShowBackdrop ] = useState( false );
+	const [ isCreatingScreenshots, setIsCreatingScreenshots ] = useState( false );
 
 	const lastRun = useRef( () => {} );
 
-	const isLoading = isGenerating || isEnhancing;
+	const isLoading = isGenerating || isEnhancing || isCreatingScreenshots;
 
 	const handleSubmit = ( event ) => {
 		event.preventDefault();
-
-		setShowBackdrop( true );
 
 		lastRun.current = () => send( prompt );
 
@@ -46,28 +42,13 @@ const FormLayout = ( { onClose, onResolve, onGenerated } ) => {
 		onClose();
 	};
 
-	const capture = () => {
-		console.log( 'capturing..' );
-		const node = elementor.getContainer( 'c3cf724' ).view.$el[ 0 ];
-
-		htmlToImage.toSvg( node )
-			.then( ( dataUrl ) => {
-				console.log( 'dataUrl', dataUrl );
-				const img = document.createElement( 'img' );
-
-				img.id = 'my-test';
-				img.src = dataUrl;
-
-				document.body.appendChild( img );
-			} );
-	};
-
 	useEffect( () => {
 		if ( data?.result ) {
-			console.log( `data.result`, data.result );
-			onGenerated( data.result ).then( ( url ) => {
-				setSuggestedImages( [ url ] );
-				setShowBackdrop( false );
+			setIsCreatingScreenshots( true );
+
+			onGenerated( data.result ).then( ( newData ) => {
+				setGeneratedData( newData );
+				setIsCreatingScreenshots( false );
 			} );
 		}
 	}, [ data ] );
@@ -75,8 +56,6 @@ const FormLayout = ( { onClose, onResolve, onGenerated } ) => {
 	return (
 		<>
 			{ error && <PromptErrorMessage error={ error } onRetry={ lastRun.current } sx={ { mb: 6 } } /> }
-
-			{ showBackdrop && <Backdrop open={ showBackdrop } sx={ { zIndex: -1, backgroundColor: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(35px)' } } /> }
 
 			<Box component="form" onSubmit={ handleSubmit }>
 				<Stack direction="row" alignItems="flex-start" gap={ 3 }>
@@ -102,7 +81,7 @@ const FormLayout = ( { onClose, onResolve, onGenerated } ) => {
 						size="medium"
 						disabled={ isLoading || '' === prompt }
 						isLoading={ isEnhancing }
-						onClick={ capture }
+						onClick={ enhance }
 					/>
 
 					<GenerateSubmit
@@ -122,19 +101,30 @@ const FormLayout = ( { onClose, onResolve, onGenerated } ) => {
 			</Box>
 
 			{
-				suggestedImages.length > 0 && (
+				generatedData.length > 0 && (
 					<Box sx={ { mt: 6 } }>
 						<Typography variant="h6" sx={ { mb: 1 } }>{ __( 'Suggested Images:', 'elementor' ) }</Typography>
 
 						<Stack direction="row" alignItems="center" gap={ 3 }>
-							{ suggestedImages.map( ( url ) => (
-								<img
-									key={ url }
-									src={ url }
-									alt=""
-									width={ 400 }
-									height={ 150 }
-								/>
+							{ generatedData.map( ( { screenshot, template } ) => (
+								<Box
+									key={ screenshot }
+									onClick={ () => {
+										onResolve( template );
+										onClose();
+									} }
+									sx={ {
+										boxSizing: 'border-box',
+										'&:hover': { border: '1px solid black', cursor: 'pointer' },
+									} }
+								>
+									<img
+										src={ screenshot }
+										alt=""
+										width={ 280 }
+										height={ 100 }
+									/>
+								</Box>
 							) ) }
 						</Stack>
 					</Box>
