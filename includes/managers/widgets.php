@@ -7,6 +7,7 @@ use Elementor\Core\Utils\Exceptions;
 use Elementor\Core\Utils\Force_Locale;
 use Elementor\Modules\NestedAccordion\Widgets\Nested_Accordion;
 use Elementor\Modules\NestedTabs\Widgets\NestedTabs;
+use Elementor\Modules\NestedTabsHtml\Widgets\NestedTabsHtml;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -212,7 +213,7 @@ class Widgets_Manager {
 	 *
 	 * @since 1.0.0
 	 * @access public
-	 * @deprecated 3.5.0 Use `$this->register()` instead.
+	 * @deprecated 3.5.0 Use `register()` method instead.
 	 *
 	 * @param Widget_Base $widget Elementor widget.
 	 *
@@ -222,7 +223,7 @@ class Widgets_Manager {
 		Plugin::$instance->modules_manager->get_modules( 'dev-tools' )->deprecation->deprecated_function(
 			__METHOD__,
 			'3.5.0',
-			'register'
+			'register()'
 		);
 
 		return $this->register( $widget );
@@ -257,6 +258,11 @@ class Widgets_Manager {
 	 */
 	private function register_promoted_widgets() {
 
+		if ( Plugin::$instance->experiments->is_feature_active( 'nested-elements-html' ) ) {
+			$this->_promoted_widgets['nested-elements-html'] = NestedTabsHtml::class;
+			unset( $this->_promoted_widgets['nested-elements'] );
+		}
+
 		foreach ( $this->_promoted_widgets as $module_name => $class_name ) {
 
 			if ( Plugin::$instance->experiments->is_feature_active( $module_name ) ) {
@@ -273,7 +279,7 @@ class Widgets_Manager {
 	 *
 	 * @since 1.0.0
 	 * @access public
-	 * @deprecated 3.5.0 Use `$this->unregister()` instead.
+	 * @deprecated 3.5.0 Use `unregister()` method instead.
 	 *
 	 * @param string $name Widget name.
 	 *
@@ -283,7 +289,7 @@ class Widgets_Manager {
 		Plugin::$instance->modules_manager->get_modules( 'dev-tools' )->deprecation->deprecated_function(
 			__METHOD__,
 			'3.5.0',
-			'unregister'
+			'unregister()'
 		);
 
 		return $this->unregister( $name );

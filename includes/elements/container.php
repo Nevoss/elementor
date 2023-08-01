@@ -87,6 +87,29 @@ class Container extends Element_Base {
 		return $keywords;
 	}
 
+	public function get_panel_presets() {
+		return [
+			'container_grid' => [
+				'replacements' => [
+					'name' => 'container_grid',
+					'controls' => [
+						'container_type' => [ 'default' => 'grid' ],
+					],
+					'title' => 'Grid',
+					'icon' => 'eicon-container-grid',
+					'custom' => [
+						'isPreset' => true,
+						'originalWidget' => $this->get_name(),
+						'presetWidget' => 'container_grid',
+						'preset_settings' => [
+							'container_type' => 'grid',
+						],
+					],
+				],
+			],
+		];
+	}
+
 	/**
 	 * Override the render attributes to add a custom wrapper class.
 	 *
@@ -616,7 +639,6 @@ class Container extends Element_Base {
 				'dynamic' => [
 					'active' => true,
 				],
-				'placeholder' => esc_html__( 'https://your-link.com', 'elementor' ),
 				'condition' => [
 					'html_tag' => 'a',
 				],
@@ -1756,7 +1778,11 @@ class Container extends Element_Base {
 	}
 
 	protected function hook_sticky_notice_into_transform_section() {
-		add_action( 'elementor/element/container/_section_transform/after_section_start', function( $container ) {
+		add_action( 'elementor/element/container/_section_transform/after_section_start', function( Container $container ) {
+			if ( ! empty( $container->get_controls( 'transform_sticky_notice' ) ) ) {
+				return;
+			}
+
 			$container->add_control(
 				'transform_sticky_notice',
 				[
